@@ -25,6 +25,7 @@
 
 class someclass
 {
+public:
   void foo();
 };
 
