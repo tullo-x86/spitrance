@@ -1,12 +1,15 @@
 # Ignore binaries
 bin/
 
-# Ignore CMake's build poop
+# Ignore CMake's prebuild poop
 build/
 CMakeFiles/
 Makefile
 *.cmake
 
+# Ignore KDevelop's metadata
+.kdev4/
+spitrance.kdev4
+
 # Ignore vim swapfiles
 *.swp
-
