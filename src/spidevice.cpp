@@ -51,5 +51,14 @@ void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length )
     tr.speed_hz = 10000000;
     tr.delay_usecs = 0;
     tr.bits_per_word = 8;
+    
+    int ret;
+    
+    ret = ioctl(_deviceHandle, SPI_IOC_MESSAGE(1), &tr);
+    if (ret < 1)
+    {    
+        perror("Couldn't send SPI message");
+        abort();
+    }
 }
 
