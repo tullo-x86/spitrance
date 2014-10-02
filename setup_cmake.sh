@@ -1,7 +1,9 @@
 #!/bin/bash
 
+#cd build
+
 echo "Passing configuration to CMake"
-cmake -DCMAKE_TOOLCHAIN_FILE=build/armhf.cmake
+cmake -Bbuild -Hsrc -DCMAKE_TOOLCHAIN_FILE=../build-setup/armhf.cmake
 
 echo "Now making..."
-make
+make -C build
