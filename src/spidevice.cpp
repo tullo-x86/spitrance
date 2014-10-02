@@ -43,13 +43,13 @@ SpiDevice::SpiDevice(const char *devicePath)
 
 void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length )
 {
-    struct spi_ioc_transfer tr = {
-        .tx_buf = (unsigned long)buffer,
-        .rx_buf = (unsigned long)nullptr,
-        .len = length,
-        .speed_hz = 10000000,
-        .delay_usecs = 0,
-        .bits_per_word = 8,
-    };
+    struct spi_ioc_transfer tr;
+    
+    tr.tx_buf = (unsigned long)buffer;
+    tr.rx_buf = (unsigned long)nullptr;
+    tr.len = length;
+    tr.speed_hz = 10000000;
+    tr.delay_usecs = 0;
+    tr.bits_per_word = 8;
 }
 
