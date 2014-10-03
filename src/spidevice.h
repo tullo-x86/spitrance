@@ -35,10 +35,13 @@ class SpiDevice
 public:
     SpiDevice(const char *devicePath, uint16_t delay, uint32_t speed, uint8_t wordLength);
     
+    void Open();
+    void Close();
     void Transfer(const uint8_t buffer[], uint16_t length);
     
 private:
     const char *_devicePath;
+    int _deviceHandle;
     uint16_t _delay;
     uint32_t _speed;
     uint8_t _wordLength;

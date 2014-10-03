@@ -41,14 +41,24 @@ _wordLength(wordLength)
 {
 }
 
-void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length)
+void SpiDevice::Open()
 {
-    int deviceHandle = open(_devicePath, O_RDWR);
-    if (deviceHandle < 0)
+    _deviceHandle = open(_devicePath, O_RDWR);
+    if (_deviceHandle < 0)
     {
         perror("Couldn't open SPI device");
         abort();
     }
+}
+
+void SpiDevice::Close()
+{
+    close(_deviceHandle);
+}
+
+
+void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length)
+{
     
     struct spi_ioc_transfer tr;
     
@@ -64,13 +74,11 @@ void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length)
     
     int ret;
     
-    ret = ioctl(deviceHandle, SPI_IOC_MESSAGE(1), &tr);
+    ret = ioctl(_deviceHandle, SPI_IOC_MESSAGE(1), &tr);
     if (ret < 1)
     {    
         perror("Couldn't send SPI message");
         abort();
     }
-    
-    close(deviceHandle);
 }
 

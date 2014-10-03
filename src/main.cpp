@@ -88,12 +88,20 @@ int main(int argc, char *argv[])
         0x00, 0x00, 0x00, 0x00, // START frame
         
         0xff, lumi, 0x00, 0x00, // One green pixel
-        0xff, 0x00, lumi, 0x00, // One red pixel
-        0xff, 0x00, 0x00, lumi, // One blue pixel
-        0xff, 0x00, lumi, lumi, // One cyan pixel
+        0xff, 0x00, lumi, 0x00, // One blue pixel
+        0xff, 0x00, 0x00, lumi, // One red pixel
+        0xff, 0x00, lumi, lumi, // One magenta pixel
         
         0xff, 0xff, 0xff, 0xff, // END frame
     };
     
+    spi->Open();
+    
     spi->Transfer(ledBuffer, ARRAY_SIZE(ledBuffer));
+    
+    ledBuffer[7] = lumi; // set first pixel yellow
+    
+    spi->Transfer(ledBuffer, ARRAY_SIZE(ledBuffer));
+    
+    spi->Close();
 }
