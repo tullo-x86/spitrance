@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <linux/spi/spidev.h>
 
 SpiDevice::SpiDevice(const char *devicePath)
@@ -45,8 +46,11 @@ void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length )
 {
     struct spi_ioc_transfer tr;
     
+    // badbadbad
+    uint8_t rx[100] = {0, };
+    
     tr.tx_buf = (unsigned long)buffer;
-    tr.rx_buf = (unsigned long)nullptr;
+    tr.rx_buf = (unsigned long)rx;
     tr.len = length;
     tr.speed_hz = 10000000;
     tr.delay_usecs = 0;
@@ -60,5 +64,7 @@ void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length )
         perror("Couldn't send SPI message");
         abort();
     }
+    
+    close(_deviceHandle);
 }
 
