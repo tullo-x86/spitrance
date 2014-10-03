@@ -7,7 +7,14 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-uint8_t lumi = 100;
+struct Options
+{
+    const char *device;
+    uint16_t delay;
+    uint32_t speed;
+    uint8_t wordLength;
+    uint8_t lumi;
+};
 
 static void print_usage(const char *prog)
 {
@@ -20,7 +27,7 @@ static void print_usage(const char *prog)
         exit(1);
 }
 
-static void parse_opts(int argc, char *argv[])
+static void parse_opts(int argc, char *argv[], struct Options *options)
 {
         while (1) {
                 static const struct option lopts[] = {
@@ -40,19 +47,19 @@ static void parse_opts(int argc, char *argv[])
 
                 switch (c) {
                 case 'D':
-                        //device = optarg;
+                        options->device = optarg;
                         break;
                 case 's':
-                        //speed = atoi(optarg);
+                        options->speed = atoi(optarg);
                         break;
                 case 'd':
-                        //delay = atoi(optarg);
+                        options->delay = atoi(optarg);
                         break;
                 case 'b':
-                        //bits = atoi(optarg);
+                        options->wordLength = atoi(optarg);
                         break;
                 case 'l':
-                        lumi = (uint8_t)atoi(optarg);
+                        options->lumi = (uint8_t)atoi(optarg);
                         break;
                 default:
                         print_usage(argv[0]);
@@ -62,10 +69,20 @@ static void parse_opts(int argc, char *argv[])
 }
 
 int main(int argc, char *argv[])
-{    
-    parse_opts(argc, argv);
+{
+    struct Options options;
     
-    SpiDevice *spi = new SpiDevice("/dev/spidev1.0", 500, 10000000, 8);
+    options.device = "/dev/spidev1.0";
+    options.delay = 500;
+    options.speed = 10000000;
+    options.wordLength = 8;
+    options.lumi = 32;
+    
+    parse_opts(argc, argv, &options);
+    
+    uint8_t lumi = options.lumi;
+    
+    SpiDevice *spi = new SpiDevice(options.device, options.delay, options.speed, options.wordLength);
     
     uint8_t ledBuffer[] = {
         0xff, 0xff, 0xff, 0xff, // START word

@@ -38,7 +38,7 @@ public:
     void Transfer(const uint8_t buffer[], uint16_t length);
     
 private:
-    int _deviceHandle;
+    const char *_devicePath;
     uint16_t _delay;
     uint32_t _speed;
     uint8_t _wordLength;
