@@ -85,13 +85,13 @@ int main(int argc, char *argv[])
     SpiDevice *spi = new SpiDevice(options.device, options.delay, options.speed, options.wordLength);
     
     uint8_t ledBuffer[] = {
-        0xff, 0xff, 0xff, 0xff, // START word
+        0x00, 0x00, 0x00, 0x00, // START frame
         
         0xff, lumi, 0x00, lumi, // One cyan pixel
         0xff, 0x00, lumi, lumi, // One magenta pixel
         0xff, lumi, lumi, 0x00, // One yellow pixel
         
-        0x00, 0x00, 0x00, 0x00  // END word
+        0xff, 0xff, 0xff, 0xff, // END frame
     };
     
     spi->Transfer(ledBuffer, ARRAY_SIZE(ledBuffer));
