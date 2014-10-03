@@ -9,7 +9,7 @@ main()
 {
     printf("Hello World\n");
     
-    SpiDevice *spi = new SpiDevice("/dev/spidev1.0");
+    SpiDevice *spi = new SpiDevice("/dev/spidev1.0", 500, 10000000, 8);
     
     uint8_t ledBuffer[] = {
         0xff, 0xff, 0xff, 0xff, // START word

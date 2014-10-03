@@ -32,7 +32,11 @@
 #include <unistd.h>
 #include <linux/spi/spidev.h>
 
-SpiDevice::SpiDevice(const char *devicePath)
+SpiDevice::SpiDevice(const char *devicePath, uint16_t delay, uint32_t speed, uint8_t wordLength)
+:
+_delay(delay),
+_speed(speed),
+_wordLength(wordLength)
 {
     _deviceHandle = open(devicePath, O_RDWR);
     if (_deviceHandle < 0)
@@ -42,7 +46,7 @@ SpiDevice::SpiDevice(const char *devicePath)
     }
 }
 
-void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length )
+void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length)
 {
     struct spi_ioc_transfer tr;
     
@@ -52,9 +56,9 @@ void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length )
     tr.tx_buf = (unsigned long)buffer;
     tr.rx_buf = (unsigned long)rx;
     tr.len = length;
-    tr.speed_hz = 10000000;
-    tr.delay_usecs = 0;
-    tr.bits_per_word = 8;
+    tr.speed_hz = _speed;
+    tr.delay_usecs = _delay;
+    tr.bits_per_word = _wordLength;
     
     int ret;
     
