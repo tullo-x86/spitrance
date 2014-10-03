@@ -24,16 +24,16 @@ static void parse_opts(int argc, char *argv[])
 {
         while (1) {
                 static const struct option lopts[] = {
-                        { "device",  1, 0, 'D' },
-                        { "speed",   1, 0, 's' },
-                        { "delay",   1, 0, 'd' },
-                        { "bpw",     1, 0, 'b' },
-                        { "lumi",    0, 0, 'l' },
+                        { "device",  1, nullptr, 'D' },
+                        { "speed",   1, nullptr, 's' },
+                        { "delay",   1, nullptr, 'd' },
+                        { "bpw",     1, nullptr, 'b' },
+                        { "lumi",    1, nullptr, 'l' },
                         { NULL, 0, 0, 0 },
                 };
                 int c;
 
-                c = getopt_long(argc, argv, "D:s:d:b:lHOLC3NR", lopts, NULL);
+                c = getopt_long(argc, argv, "D:s:d:b:l:", lopts, NULL);
 
                 if (c == -1)
                         break;
@@ -52,7 +52,7 @@ static void parse_opts(int argc, char *argv[])
                         //bits = atoi(optarg);
                         break;
                 case 'l':
-                        lumi = atoi(optarg);
+                        lumi = (uint8_t)atoi(optarg);
                         break;
                 default:
                         print_usage(argv[0]);
