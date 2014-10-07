@@ -42,12 +42,12 @@ _framesUntilNewSpark(0)
 }
 
 #define FRAMES_BETWEEN_SPARKS 30
-#define TRAIL_LENGTH 5
+#define TRAIL_LENGTH 2
 
 void SparksPattern::Logic()
 {
     // Shift pixels backward
-    for (int i=1; i < _length; i++)
+    for (int i=_length; i > 0; i--)
     {
         _hsvBuffer[i] = _hsvBuffer[i-1];
     }
@@ -61,7 +61,7 @@ void SparksPattern::Logic()
         // First pixel is white
         _hsvBuffer[0].sat = 0;
     }
-    else if (_framesSinceLastSpark < TRAIL_LENGTH)
+    else if (_framesSinceLastSpark <= TRAIL_LENGTH)
     {
         // Body pixels are sparkly
         _hsvBuffer[0].sat = rand() % 255;
@@ -74,6 +74,9 @@ void SparksPattern::Logic()
     
     _hsvBuffer[0].hue = _currentHue;
     _hsvBuffer[0].val = 32;
+    
+    _framesSinceLastSpark++;
+    _framesUntilNewSpark--;
 }
 
 void SparksPattern::Render()
