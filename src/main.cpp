@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <thread>
+#include <string.h>
 
 #include "spidevice.h"
 #include "FastLED/pixeltypes.h"
@@ -82,13 +83,20 @@ CRGB rgbPixels[NUM_PIXELS];
 
 void fillSpiBufferGBR(uint8_t spiBuffer[], CRGB rgbBuffer[], int length)
 {
+    // Header
+    memset(spiBuffer, 0x00, 4);
+    
+    // Payload
     for (int i=0; i < length; i++)
     {
-        spiBuffer[4*i] = 0xff;
-        spiBuffer[4*i + 1] = rgbBuffer[i].g;
-        spiBuffer[4*i + 2] = rgbBuffer[i].b;
-        spiBuffer[4*i + 3] = rgbBuffer[i].r;
+        spiBuffer[4*i + 4] = 0xe8;
+        spiBuffer[4*i + 5] = rgbBuffer[i].g;
+        spiBuffer[4*i + 6] = rgbBuffer[i].b;
+        spiBuffer[4*i + 7] = rgbBuffer[i].r;
     }
+    
+    // Footer
+    memset(spiBuffer + ((1 + length) * 4), 0xff, 4);
 }
 
 int main(int argc, char *argv[])
@@ -120,12 +128,11 @@ int main(int argc, char *argv[])
     
     spi->Open();
     
-    for(int hue=0; hue < 360; hue++)
+    for(int hue=0; hue < HUE_MAX_RAINBOW - (10 * NUM_PIXELS); hue++)
     {
-        fill_rainbow(rgbPixels, NUM_PIXELS, hue);
-        fillSpiBufferGBR(spiBuffer, rgbPixels, NUM_PIXELS);
-        spi->Transfer(spiBuffer, ARRAY_SIZE(spiBuffer));
-        
+        fill_rainbow(rgbPixels, NUM_PIXELS, hue, 10);        
+        fillSpiBufferGBR(spiBuffer, rgbPixels, NUM_PIXELS);        
+        spi->Transfer(spiBuffer, ARRAY_SIZE(spiBuffer));        
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
     
