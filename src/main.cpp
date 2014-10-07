@@ -84,10 +84,10 @@ void fillSpiBufferGBR(uint8_t spiBuffer[], CRGB rgbBuffer[], int length)
 {
     for (int i=0; i < length; i++)
     {
-        spiBuffer[i+4] = 0xff;
-        spiBuffer[i+5] = rgbBuffer[i].g;
-        spiBuffer[i+6] = rgbBuffer[i].b;
-        spiBuffer[i+7] = rgbBuffer[i].r;
+        spiBuffer[4*i] = 0xff;
+        spiBuffer[4*i + 1] = rgbBuffer[i].g;
+        spiBuffer[4*i + 2] = rgbBuffer[i].b;
+        spiBuffer[4*i + 3] = rgbBuffer[i].r;
     }
 }
 
