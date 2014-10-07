@@ -6,11 +6,11 @@
 
 #include <chrono>
 #include <thread>
-#include <string.h>
 
 #include "spidevice.h"
 #include "FastLED/pixeltypes.h"
 #include "FastLED/hsv2rgb.h"
+#include "ledstrip.h"
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
@@ -81,24 +81,6 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
 CHSV hsvPixels[NUM_PIXELS];
 CRGB rgbPixels[NUM_PIXELS];
 
-void fillSpiBufferGBR(uint8_t spiBuffer[], CRGB rgbBuffer[], int length)
-{
-    // Header
-    memset(spiBuffer, 0x00, 4);
-    
-    // Payload
-    for (int i=0; i < length; i++)
-    {
-        spiBuffer[4*i + 4] = 0xe8;
-        spiBuffer[4*i + 5] = rgbBuffer[i].g;
-        spiBuffer[4*i + 6] = rgbBuffer[i].b;
-        spiBuffer[4*i + 7] = rgbBuffer[i].r;
-    }
-    
-    // Footer
-    memset(spiBuffer + ((1 + length) * 4), 0xff, 4);
-}
-
 int main(int argc, char *argv[])
 {
     struct Options options;
@@ -107,34 +89,22 @@ int main(int argc, char *argv[])
     options.delay = 500;
     options.speed = 10000000;
     options.wordLength = 8;
-    options.lumi = 32;
+    options.lumi = 31;
     
     parse_opts(argc, argv, &options);
     
-    uint8_t lumi = options.lumi;
     
-    SpiDevice *spi = new SpiDevice(options.device, options.delay, options.speed, options.wordLength);
     
-    uint8_t spiBuffer[8 + (NUM_PIXELS * 4)] = {
-        0x00, 0x00, 0x00, 0x00, // START frame
-        
-        0xff, lumi, 0x00, 0x00, // One green pixel
-        0xff, 0x00, lumi, 0x00, // One blue pixel
-        0xff, 0x00, 0x00, lumi, // One red pixel
-        0xff, 0x00, lumi, lumi, // One magenta pixel
-        
-        0xff, 0xff, 0xff, 0xff, // END frame
-    };
-    
-    spi->Open();
+    SpiDevice spi(options.device, options.delay, options.speed, options.wordLength);
+    LedStrip strip(&spi, NUM_PIXELS);
     
     for(int hue=0; hue < HUE_MAX_RAINBOW * 3; hue+= 5)
     {
-        fill_rainbow(rgbPixels, NUM_PIXELS, hue, 20);        
-        fillSpiBufferGBR(spiBuffer, rgbPixels, NUM_PIXELS);        
-        spi->Transfer(spiBuffer, ARRAY_SIZE(spiBuffer));        
+        fill_rainbow(rgbPixels, NUM_PIXELS, hue, 20);
+        
+        strip.FillGBR(rgbPixels, options.lumi);
+        strip.Output();
+        
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    
-    spi->Close();
 }

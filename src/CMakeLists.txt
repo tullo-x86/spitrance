@@ -9,6 +9,7 @@ set (SPILED_VERSION_MINOR 0)
 # Source files
 set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/spidevice.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ledstrip.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
   

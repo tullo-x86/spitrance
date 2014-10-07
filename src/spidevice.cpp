@@ -37,33 +37,37 @@ SpiDevice::SpiDevice(const char *devicePath, uint16_t delay, uint32_t speed, uin
 _devicePath(devicePath),
 _delay(delay),
 _speed(speed),
-_wordLength(wordLength)
+_wordLength(wordLength),
+_deviceHandle(0)
 {
 }
 
 void SpiDevice::Open()
 {
-    _deviceHandle = open(_devicePath, O_RDWR);
-    if (_deviceHandle < 0)
-    {
-        perror("Couldn't open SPI device");
-        abort();
+    if(_deviceHandle == 0) {
+        _deviceHandle = open(_devicePath, O_RDWR);
+        if (_deviceHandle < 0)
+        {
+            perror("Couldn't open SPI device");
+            abort();
+        }
     }
 }
 
 void SpiDevice::Close()
 {
-    close(_deviceHandle);
+    if(_deviceHandle != 0) {
+        close(_deviceHandle);
+    }
 }
 
+// badbadbad
+uint8_t rx[32768] = {0, };
 
 void SpiDevice::Transfer(const uint8_t buffer[], uint16_t length)
 {
     
     struct spi_ioc_transfer tr;
-    
-    // badbadbad
-    uint8_t rx[100] = {0, };
     
     tr.tx_buf = (unsigned long)buffer;
     tr.rx_buf = (unsigned long)rx;
