@@ -1,0 +1,12 @@
+set(SOURCE
+    ${SOURCE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/hsv2rgb.cpp
+    PARENT_SCOPE
+)
+set(HEADERS
+    ${HEADERS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/pixeltypes.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/hsv2rgb.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib8tion.h
+    PARENT_SCOPE
+)

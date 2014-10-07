@@ -20,10 +20,10 @@ static void print_usage(const char *prog)
 {
         printf("Usage: %s [-Dsbdl]\n", prog);
         puts("  -D --device   device to use (default /dev/spidev1.0)\n"
-             "  -s --speed    max speed (Hz)\n"
-             "  -d --delay    delay (usec)\n"
-             "  -b --bpw      bits per word \n"
-             "  -l --lumi     luminance\n");
+            "  -s --speed    max speed (Hz)\n"
+            "  -d --delay    delay (usec)\n"
+            "  -b --bpw      bits per word \n"
+            "  -l --lumi     luminance\n");
         exit(1);
 }
 
