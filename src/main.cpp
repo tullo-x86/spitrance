@@ -128,9 +128,9 @@ int main(int argc, char *argv[])
     
     spi->Open();
     
-    for(int hue=0; hue < HUE_MAX_RAINBOW - (10 * NUM_PIXELS); hue++)
+    for(int hue=0; hue < HUE_MAX_RAINBOW * 3; hue+= 5)
     {
-        fill_rainbow(rgbPixels, NUM_PIXELS, hue, 10);        
+        fill_rainbow(rgbPixels, NUM_PIXELS, hue, 20);        
         fillSpiBufferGBR(spiBuffer, rgbPixels, NUM_PIXELS);        
         spi->Transfer(spiBuffer, ARRAY_SIZE(spiBuffer));        
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
