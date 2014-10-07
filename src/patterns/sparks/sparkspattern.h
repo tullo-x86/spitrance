@@ -42,7 +42,11 @@ public:
     
 private:
     int _length;
-    int _frame;
+    int _framesUntilNewSpark;
+    int _framesSinceLastSpark;
+    
+    uint8_t _currentHue;
+    
     CRGB *_rgbBuffer;
     CHSV *_hsvBuffer;
 };

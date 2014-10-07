@@ -32,7 +32,7 @@
 
 SparksPattern::SparksPattern(int length)
 : _length(length),
-_frame(0)
+_framesUntilNewSpark(0)
 {
     _rgbBuffer = new CRGB[length];
     _hsvBuffer = new CHSV[length];
@@ -41,23 +41,39 @@ _frame(0)
     memset(_hsvBuffer, 0x00, sizeof(CHSV) * length);
 }
 
+#define FRAMES_BETWEEN_SPARKS 30
+#define TRAIL_LENGTH 5
+
 void SparksPattern::Logic()
 {
-    _hsvBuffer[_frame].hue = 0;
-    _hsvBuffer[_frame].sat = 0;
-    _hsvBuffer[_frame].val = 255;
+    // Shift pixels backward
+    for (int i=1; i < _length; i++)
+    {
+        _hsvBuffer[i] = _hsvBuffer[i-1];
+    }
     
-    _hsvBuffer[1].hue = 0;
-    _hsvBuffer[1].sat = 255;
-    _hsvBuffer[1].val = 255;
+    if (_framesUntilNewSpark == 0)
+    {
+        _framesUntilNewSpark = FRAMES_BETWEEN_SPARKS;
+        _framesSinceLastSpark = 0;
+        _currentHue = rand() % HUE_MAX_RAINBOW;
+        
+        // First pixel is white
+        _hsvBuffer[0].sat = 0;
+    }
+    else if (_framesSinceLastSpark < TRAIL_LENGTH)
+    {
+        // Body pixels are sparkly
+        _hsvBuffer[0].sat = rand() % 255;
+    }
+    else
+    {
+        // Tail pixels are solid colour
+        _hsvBuffer[0].sat = 255;
+    }    
     
-    _hsvBuffer[2].hue = 0;
-    _hsvBuffer[2].sat = 255;
-    _hsvBuffer[2].val = 32;
-    
-    _hsvBuffer[3].hue = 127;
-    _hsvBuffer[3].sat = 255;
-    _hsvBuffer[3].val = 255;
+    _hsvBuffer[0].hue = _currentHue;
+    _hsvBuffer[0].val = 32;
 }
 
 void SparksPattern::Render()
