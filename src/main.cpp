@@ -3,7 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+
+#include <chrono>
+#include <thread>
+
 #include "spidevice.h"
+#include "FastLED/pixeltypes.h"
+#include "FastLED/hsv2rgb.h"
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
@@ -68,6 +74,23 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
         }
 }
 
+
+#define NUM_PIXELS 4
+
+CHSV hsvPixels[NUM_PIXELS];
+CRGB rgbPixels[NUM_PIXELS];
+
+void fillSpiBufferGBR(uint8_t spiBuffer[], CRGB rgbBuffer[], int length)
+{
+    for (int i=0; i < length; i++)
+    {
+        spiBuffer[i+4] = 0xff;
+        spiBuffer[i+5] = rgbBuffer[i].g;
+        spiBuffer[i+6] = rgbBuffer[i].b;
+        spiBuffer[i+7] = rgbBuffer[i].r;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     struct Options options;
@@ -84,7 +107,7 @@ int main(int argc, char *argv[])
     
     SpiDevice *spi = new SpiDevice(options.device, options.delay, options.speed, options.wordLength);
     
-    uint8_t ledBuffer[] = {
+    uint8_t spiBuffer[8 + (NUM_PIXELS * 4)] = {
         0x00, 0x00, 0x00, 0x00, // START frame
         
         0xff, lumi, 0x00, 0x00, // One green pixel
@@ -97,11 +120,14 @@ int main(int argc, char *argv[])
     
     spi->Open();
     
-    spi->Transfer(ledBuffer, ARRAY_SIZE(ledBuffer));
-    
-    ledBuffer[7] = lumi; // set first pixel yellow
-    
-    spi->Transfer(ledBuffer, ARRAY_SIZE(ledBuffer));
+    for(int hue=0; hue < 360; hue++)
+    {
+        fill_rainbow(rgbPixels, NUM_PIXELS, hue);
+        fillSpiBufferGBR(spiBuffer, rgbPixels, NUM_PIXELS);
+        spi->Transfer(spiBuffer, ARRAY_SIZE(spiBuffer));
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
     
     spi->Close();
 }
