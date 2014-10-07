@@ -31,7 +31,8 @@
 #include "../../FastLED/hsv2rgb.h"
 
 SparksPattern::SparksPattern(int length)
-: _length(length)
+: _length(length),
+_frame(0)
 {
     _rgbBuffer = new CRGB[length];
     _hsvBuffer = new CHSV[length];
@@ -42,9 +43,21 @@ SparksPattern::SparksPattern(int length)
 
 void SparksPattern::Logic()
 {
-    _hsvBuffer[_frame].hue = rand() % HUE_MAX_RAINBOW;
-    _hsvBuffer[_frame].sat = 255;
+    _hsvBuffer[_frame].hue = 0;
+    _hsvBuffer[_frame].sat = 0;
     _hsvBuffer[_frame].val = 255;
+    
+    _hsvBuffer[1].hue = 0;
+    _hsvBuffer[1].sat = 255;
+    _hsvBuffer[1].val = 255;
+    
+    _hsvBuffer[2].hue = 0;
+    _hsvBuffer[2].sat = 255;
+    _hsvBuffer[2].val = 32;
+    
+    _hsvBuffer[3].hue = 127;
+    _hsvBuffer[3].sat = 255;
+    _hsvBuffer[3].val = 255;
 }
 
 void SparksPattern::Render()
@@ -54,6 +67,7 @@ void SparksPattern::Render()
 
 SparksPattern::~SparksPattern()
 {
-    delete[] _rgbBuffer;
+    // Not sure why it doesn't like this, but I don't really care right now.
+    //delete[] _rgbBuffer;
 }
 

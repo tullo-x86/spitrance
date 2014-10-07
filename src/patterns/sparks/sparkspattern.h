@@ -42,7 +42,7 @@ public:
     
 private:
     int _length;
-    int _frame = 0;
+    int _frame;
     CRGB *_rgbBuffer;
     CHSV *_hsvBuffer;
 };
