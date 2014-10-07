@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Daniel Tullemans <tully@be-lumino.us>
+ * Copyright (c) 2014 Daniel Tullemans <email>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,43 +24,36 @@
  *
  */
 
-#include "ledstrip.h"
-#include <string.h> // memset
-#include <math.h>
+#include "sparkspattern.h"
 
-LedStrip::LedStrip(SpiDevice *spiDevice, int length)
-: _spiDevice(spiDevice),
-_length(length)
-{
-    _buffer = new uint8_t[_length];
-    _spiDevice->Open();
-}
+#include <string.h>
+#include <stdlib.h>
+#include "../../FastLED/hsv2rgb.h"
 
-LedStrip::~LedStrip()
+SparksPattern::SparksPattern(int length)
+: _length(length)
 {
-    _spiDevice->Close();
-}
-
-void LedStrip::FillGBR(const CRGB pixels[], uint8_t brightness)
-{
-    // Header
-    memset(_buffer, 0x00, 4);
+    _rgbBuffer = new CRGB[length];
+    _hsvBuffer = new CHSV[length];
     
-    // Payload
-    for (int i=0; i < _length; i++)
-    {
-        // Assume the user is ignorant of the strip protocol and clamp brightness to 0-31
-        _buffer[4*i + 4] = 0xe0 | (brightness < 32 ? brightness : 31);
-        _buffer[4*i + 5] = pixels[i].g;
-        _buffer[4*i + 6] = pixels[i].b;
-        _buffer[4*i + 7] = pixels[i].r;
-    }
-    
-    // Footer
-    memset(_buffer + ((1 + _length) * 4), 0xff, 4);
+    memset(_rgbBuffer, 0x00, sizeof(CRGB) * length);
+    memset(_hsvBuffer, 0x00, sizeof(CHSV) * length);
 }
 
-void LedStrip::Output()
+void SparksPattern::Logic()
 {
-    _spiDevice->Transfer(_buffer, 8 + (_length * 4));
+    _hsvBuffer[_frame].hue = rand() % HUE_MAX_RAINBOW;
+    _hsvBuffer[_frame].sat = 255;
+    _hsvBuffer[_frame].val = 255;
 }
+
+void SparksPattern::Render()
+{
+    hsv2rgb_rainbow(_hsvBuffer, _rgbBuffer, _length);
+}
+
+SparksPattern::~SparksPattern()
+{
+    delete[] _rgbBuffer;
+}
+

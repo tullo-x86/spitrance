@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Daniel Tullemans <email>
+ * Copyright (c) 2014 Daniel Tullemans <tully@be-lumino.us>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation

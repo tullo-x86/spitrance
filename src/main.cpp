@@ -1,4 +1,30 @@
-/* Hello World program */
+/* 
+ * LED strip base application
+ * 
+ * Copyright (c) 2014 Daniel Tullemans <tully@be-lumino.us>
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +37,7 @@
 #include "FastLED/pixeltypes.h"
 #include "FastLED/hsv2rgb.h"
 #include "ledstrip.h"
+#include "patterns/sparks/sparkspattern.h"
 
 struct Options
 {
@@ -91,13 +118,13 @@ int main(int argc, char *argv[])
     SpiDevice spi(options.device, options.delay, options.speed, 8);
     LedStrip strip(&spi, NUM_PIXELS);
     
-    for(int hue=0; hue < HUE_MAX_RAINBOW * 3; hue+= 5)
-    {
-        fill_rainbow(rgbPixels, NUM_PIXELS, hue, 20);
-        
-        strip.FillGBR(rgbPixels, options.lumi);
-        strip.Output();
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
+    SparksPattern sparks(NUM_PIXELS);
+    
+    sparks.Logic();
+    sparks.Render();
+    
+    strip.FillGBR(sparks.GetRGBData(), options.lumi);
+    strip.Output();
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }

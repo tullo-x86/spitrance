@@ -1,10 +1,11 @@
+# PROJECT ROOT
+
 cmake_minimum_required (VERSION 2.6)
 
 project (spi-led)
 
 set (SPILED_VERSION_MAJOR 1)
 set (SPILED_VERSION_MINOR 0)
-
 
 # Source files
 set(SOURCE
@@ -14,5 +15,6 @@ set(SOURCE
 )
   
 add_subdirectory("${PROJECT_SOURCE_DIR}/FastLED")
+add_subdirectory("${PROJECT_SOURCE_DIR}/patterns")
 
 add_executable(test-leds ${SOURCE} ${HEADERS})
