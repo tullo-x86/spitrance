@@ -12,8 +12,6 @@
 #include "FastLED/hsv2rgb.h"
 #include "ledstrip.h"
 
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
-
 struct Options
 {
     const char *device;
@@ -41,13 +39,12 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
                         { "device",  1, nullptr, 'D' },
                         { "speed",   1, nullptr, 's' },
                         { "delay",   1, nullptr, 'd' },
-                        { "bpw",     1, nullptr, 'b' },
                         { "lumi",    1, nullptr, 'l' },
                         { NULL, 0, 0, 0 },
                 };
                 int c;
 
-                c = getopt_long(argc, argv, "D:s:d:b:l:", lopts, NULL);
+                c = getopt_long(argc, argv, "D:s:d:l:", lopts, NULL);
 
                 if (c == -1)
                         break;
@@ -61,9 +58,6 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
                         break;
                 case 'd':
                         options->delay = atoi(optarg);
-                        break;
-                case 'b':
-                        options->wordLength = atoi(optarg);
                         break;
                 case 'l':
                         options->lumi = (uint8_t)atoi(optarg);
@@ -88,14 +82,13 @@ int main(int argc, char *argv[])
     options.device = "/dev/spidev1.0";
     options.delay = 500;
     options.speed = 10000000;
-    options.wordLength = 8;
     options.lumi = 31;
     
     parse_opts(argc, argv, &options);
     
     
     
-    SpiDevice spi(options.device, options.delay, options.speed, options.wordLength);
+    SpiDevice spi(options.device, options.delay, options.speed, 8);
     LedStrip strip(&spi, NUM_PIXELS);
     
     for(int hue=0; hue < HUE_MAX_RAINBOW * 3; hue+= 5)
