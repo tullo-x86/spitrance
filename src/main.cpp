@@ -120,11 +120,13 @@ int main(int argc, char *argv[])
     
     SparksPattern sparks(NUM_PIXELS);
     
-    sparks.Logic();
-    sparks.Render();
-    
-    strip.FillGBR(sparks.GetRGBData(), options.lumi);
-    strip.Output();
-    
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    while(1) {
+        sparks.Logic();
+        sparks.Render();
+        
+        strip.FillGBR(sparks.GetRGBData(), options.lumi);
+        strip.Output();
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
 }
