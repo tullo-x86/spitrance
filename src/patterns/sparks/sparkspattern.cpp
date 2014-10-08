@@ -41,8 +41,8 @@ _framesUntilNewSpark(0)
     for(int i=0; i < _length; i++)
         _hsvBuffer[i] = CHSV(_backgroundHue, 255, 255);
     
-    _sparks.push_front(Spark(170));
-    _sparks[0].Position = length;
+    _sparks.push_front(Spark(HUE_MAX_RAINBOW / 3));
+    _sparks[0].Position = length - 1;
 }
 
 #define FRAMES_BETWEEN_SPARKS 30
@@ -77,16 +77,16 @@ void SparksPattern::Logic()
             //     - (TAIL) 255
             if (pixelIdx == it->Position)
             {
-                _hsvBuffer->sat = 0;
+                _hsvBuffer[pixelIdx].sat = 0;
             }
             else if (it->Position - pixelIdx <= TRAIL_LENGTH)
             {
                 // TODO: Try a logarithmic randomness instead
-                _hsvBuffer->sat = rand() % 255;
+                _hsvBuffer[pixelIdx].sat = rand() % 255;
             }
             else
             {
-                _hsvBuffer->sat = 255;
+                _hsvBuffer[pixelIdx].sat = 255;
             }
         }
         
