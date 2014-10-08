@@ -30,6 +30,9 @@
 #include <stdlib.h>
 #include "../../FastLED/hsv2rgb.h"
 
+#define FRAMES_BETWEEN_SPARKS 30
+#define TRAIL_LENGTH 4
+
 SparksPattern::SparksPattern(int length)
 : _length(length),
 _framesUntilNewSpark(0)
@@ -43,10 +46,9 @@ _framesUntilNewSpark(0)
     
     _sparks.push_front(Spark(HUE_MAX_RAINBOW / 3));
     _sparks[0].Position = length - 1;
+    
+    _framesUntilNewSpark = FRAMES_BETWEEN_SPARKS;
 }
-
-#define FRAMES_BETWEEN_SPARKS 30
-#define TRAIL_LENGTH 2
 
 void SparksPattern::Logic()
 {
@@ -92,10 +94,23 @@ void SparksPattern::Logic()
         
         lastSparkHead = it->Position;
         // Don't move while testing the trail animation
-        //it->Position++;
+        it->Position++;
     }
     
-    // Handle spark spawning and despawning
+    // Can only destroy a spark if:
+    //   - There are at least two sparks
+    //  && Spark before it has reached the end
+    if (_sparks.size() > 1
+        && _sparks.at(_sparks.size() - 2).Position >= (_length - 1))
+    {
+        _sparks.pop_back();
+    }
+    
+    if (--_framesUntilNewSpark == 0)
+    {
+        _framesUntilNewSpark = FRAMES_BETWEEN_SPARKS;
+        _sparks.push_front(Spark(rand() % HUE_MAX_RAINBOW));
+    }
 }
 
 void SparksPattern::Render()

@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     options.device = "/dev/spidev1.0";
     options.delay = 500;
     options.speed = 10000000;
-    options.lumi = 31;
+    options.lumi = 1;
     
     parse_opts(argc, argv, &options);
     
