@@ -37,8 +37,12 @@ _framesUntilNewSpark(0)
     _rgbBuffer = new CRGB[length];
     _hsvBuffer = new CHSV[length];
     
-    memset(_rgbBuffer, 0x00, sizeof(CRGB) * length);
-    memset(_hsvBuffer, 0x00, sizeof(CHSV) * length);
+    // Clear "framebuffer"
+    for(int i=0; i < _length; i++)
+        _hsvBuffer[i] = CHSV(_backgroundHue, 255, 255);
+    
+    _sparks.push_front(Spark(170));
+    _sparks[0].Position = length;
 }
 
 #define FRAMES_BETWEEN_SPARKS 30
@@ -46,37 +50,52 @@ _framesUntilNewSpark(0)
 
 void SparksPattern::Logic()
 {
-    // Shift pixels backward
-    for (int i=_length; i > 0; i--)
-    {
-        _hsvBuffer[i] = _hsvBuffer[i-1];
-    }
+    int lastSparkHead = -1;
     
-    if (_framesUntilNewSpark == 0)
+    // Iterate forward from pixel 0 to pixel n
+    for(std::deque<Spark>::iterator it = _sparks.begin(); it != _sparks.end(); it++)
     {
-        _framesUntilNewSpark = FRAMES_BETWEEN_SPARKS;
-        _framesSinceLastSpark = 0;
-        _currentHue = rand() % HUE_MAX_RAINBOW;
+        // - Find the position of this spark
+        int startIdx = it->Position;
         
-        // First pixel is white
-        _hsvBuffer[0].sat = 0;
+        // - If the spark is beyond the end, we still need to draw its body and tail
+        //   (but obviously we can't render anything beyond the framebuffer)
+        if (startIdx >= _length)
+        {
+            startIdx = _length - 1;
+        }
+        
+        // - Iterate backwards until the head of the last spark
+        for (int pixelIdx = startIdx; pixelIdx > lastSparkHead; pixelIdx--)
+        {
+            //   - Set pixel hue to curent spark's hue
+            _hsvBuffer[pixelIdx].hue = it->Hue;
+            
+            //   - Set pixel saturation to:
+            //     - (HEAD) 0
+            //     - (BODY) random
+            //     - (TAIL) 255
+            if (pixelIdx == it->Position)
+            {
+                _hsvBuffer->sat = 0;
+            }
+            else if (it->Position - pixelIdx <= TRAIL_LENGTH)
+            {
+                // TODO: Try a logarithmic randomness instead
+                _hsvBuffer->sat = rand() % 255;
+            }
+            else
+            {
+                _hsvBuffer->sat = 255;
+            }
+        }
+        
+        lastSparkHead = it->Position;
+        // Don't move while testing the trail animation
+        //it->Position++;
     }
-    else if (_framesSinceLastSpark <= TRAIL_LENGTH)
-    {
-        // Body pixels are sparkly
-        _hsvBuffer[0].sat = rand() % 255;
-    }
-    else
-    {
-        // Tail pixels are solid colour
-        _hsvBuffer[0].sat = 255;
-    }    
     
-    _hsvBuffer[0].hue = _currentHue;
-    _hsvBuffer[0].val = 255;
-    
-    _framesSinceLastSpark++;
-    _framesUntilNewSpark--;
+    // Handle spark spawning and despawning
 }
 
 void SparksPattern::Render()
