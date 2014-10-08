@@ -44,7 +44,7 @@ _framesUntilNewSpark(0)
     for(int i=0; i < _length; i++)
         _hsvBuffer[i] = CHSV(_backgroundHue, 255, 255);
     
-    _sparks.push_front(Spark(HUE_MAX_RAINBOW / 3, length - 1));
+    _sparks.push_front(Spark(0, length - 1));
     
     _framesUntilNewSpark = FRAMES_BETWEEN_SPARKS;
 }
@@ -54,10 +54,10 @@ void SparksPattern::Logic()
     int lastSparkHead = -1;
     
     // Iterate forward from pixel 0 to pixel n
-    for(auto it = _sparks.begin(); it != _sparks.end(); it++)
+    for(Spark &spark : _sparks)
     {
         // - Find the position of this spark
-        int startIdx = it->Position;
+        int startIdx = spark.Position;
         
         // - If the spark is beyond the end, we still need to draw its body and tail
         //   (but obviously we can't render anything beyond the framebuffer)
@@ -70,20 +70,21 @@ void SparksPattern::Logic()
         for (int pixelIdx = startIdx; pixelIdx > lastSparkHead; pixelIdx--)
         {
             //   - Set pixel hue to curent spark's hue
-            _hsvBuffer[pixelIdx].hue = it->Hue;
+            _hsvBuffer[pixelIdx].hue = spark.Hue;
             
             //   - Set pixel saturation to:
             //     - (HEAD) 0
             //     - (BODY) random
             //     - (TAIL) 255
-            if (pixelIdx == it->Position)
+            if (pixelIdx == spark.Position)
             {
                 _hsvBuffer[pixelIdx].sat = 0;
             }
-            else if (it->Position - pixelIdx <= TRAIL_LENGTH)
+            else if (spark.Position - pixelIdx <= TRAIL_LENGTH)
             {
-                // TODO: Try a logarithmic randomness instead
-                _hsvBuffer[pixelIdx].sat = rand() % 255;
+                // Saturation = 100% - RandomElement({ 0xff, 0x7f, 0x3f, 0x1f, 0x0f })
+                //    leaving possible sat values of { 0x00, 0x70, 0xc0, 0xe0, 0xf0 }
+                _hsvBuffer[pixelIdx].sat = 0xff - (0xff >> (rand() % 5));
             }
             else
             {
@@ -91,9 +92,9 @@ void SparksPattern::Logic()
             }
         }
         
-        lastSparkHead = it->Position;
-        // Don't move while testing the trail animation
-        it->Position++;
+        lastSparkHead = spark.Position;
+        
+        spark.Position++;
     }
     
     // Can only destroy a spark if:
@@ -101,10 +102,10 @@ void SparksPattern::Logic()
     //  && Spark before it has reached the end
     if (_sparks.size() > 1)
     {        
-        auto it = _sparks.rbegin();
-        it++;
+        auto spark = _sparks.rbegin();
+        spark++;
         
-        if (it->Position >= (_length - 1))
+        if (spark->Position >= (_length - 1))
         {
             _sparks.pop_back();
         }
