@@ -30,12 +30,11 @@
 #include <stdlib.h>
 #include "../../FastLED/hsv2rgb.h"
 
-#define FRAMES_BETWEEN_SPARKS 30
-#define TRAIL_LENGTH 4
-
-SparksPattern::SparksPattern(int length)
+SparksPattern::SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength)
 : _length(length),
-_framesUntilNewSpark(0)
+_framesUntilNewSpark(framesBetweenSparks),
+_framesBetweenSparks(framesBetweenSparks),
+_sparkleTrailLength(sparkleTrailLength)
 {
     _rgbBuffer = new CRGB[length];
     _hsvBuffer = new CHSV[length];
@@ -45,11 +44,36 @@ _framesUntilNewSpark(0)
         _hsvBuffer[i] = CHSV(_backgroundHue, 255, 255);
     
     _sparks.push_front(Spark(0, length - 1));
-    
-    _framesUntilNewSpark = FRAMES_BETWEEN_SPARKS;
 }
 
 void SparksPattern::Logic()
+{
+    
+    for(Spark &spark : _sparks)
+        spark.Position++;
+    
+    // Can only destroy a spark if:
+    //   - There are at least two sparks
+    //  && Spark before it has reached the end
+    if (_sparks.size() > 1)
+    {        
+        auto spark = _sparks.rbegin();
+        spark++;
+        
+        if (spark->Position >= (_length - 1))
+        {
+            _sparks.pop_back();
+        }
+    }
+    
+    if (--_framesUntilNewSpark == 0)
+    {
+        _framesUntilNewSpark = _framesBetweenSparks;
+        _sparks.push_front(Spark(rand() % HUE_MAX_RAINBOW));
+    }
+}
+
+void SparksPattern::Render()
 {
     int lastSparkHead = -1;
     
@@ -80,7 +104,7 @@ void SparksPattern::Logic()
             {
                 _hsvBuffer[pixelIdx].sat = 0;
             }
-            else if (spark.Position - pixelIdx <= TRAIL_LENGTH)
+            else if (spark.Position - pixelIdx <= _sparkleTrailLength)
             {
                 // Saturation = 100% - RandomElement({ 0xff, 0x7f, 0x3f, 0x1f, 0x0f })
                 //    leaving possible sat values of { 0x00, 0x70, 0xc0, 0xe0, 0xf0 }
@@ -93,33 +117,8 @@ void SparksPattern::Logic()
         }
         
         lastSparkHead = spark.Position;
-        
-        spark.Position++;
     }
     
-    // Can only destroy a spark if:
-    //   - There are at least two sparks
-    //  && Spark before it has reached the end
-    if (_sparks.size() > 1)
-    {        
-        auto spark = _sparks.rbegin();
-        spark++;
-        
-        if (spark->Position >= (_length - 1))
-        {
-            _sparks.pop_back();
-        }
-    }
-    
-    if (--_framesUntilNewSpark == 0)
-    {
-        _framesUntilNewSpark = FRAMES_BETWEEN_SPARKS;
-        _sparks.push_front(Spark(rand() % HUE_MAX_RAINBOW));
-    }
-}
-
-void SparksPattern::Render()
-{
     hsv2rgb_rainbow(_hsvBuffer, _rgbBuffer, _length);
 }
 

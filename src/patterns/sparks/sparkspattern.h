@@ -35,7 +35,7 @@ struct Spark;
 class SparksPattern
 {
 public:
-    SparksPattern(int length);
+    SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength);
     ~SparksPattern();
     
     void Logic();
@@ -46,6 +46,8 @@ public:
 private:
     int _length;
     int _framesUntilNewSpark;
+    const int _framesBetweenSparks;
+    const int _sparkleTrailLength;
     
     std::list<Spark> _sparks;
     

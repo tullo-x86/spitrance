@@ -125,10 +125,15 @@ int main(int argc, char *argv[])
     SpiDevice spi(options.device, options.delay, options.speed, 8);
     LedStrip strip(&spi, NUM_PIXELS);
     
-    SparksPattern sparks(NUM_PIXELS);
+    SparksPattern sparks(NUM_PIXELS, 30, 4);
+    
+    int animate = 0;
     
     while(1) {
-        sparks.Logic();
+        if (--animate <= 0) {
+            sparks.Logic();
+            animate = 2;
+        }
         sparks.Render();
         
         strip.FillGBR(sparks.GetRGBData(), options.lumi);
