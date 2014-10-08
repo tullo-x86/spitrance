@@ -73,7 +73,7 @@ void SparksPattern::Logic()
     }    
     
     _hsvBuffer[0].hue = _currentHue;
-    _hsvBuffer[0].val = 32;
+    _hsvBuffer[0].val = 255;
     
     _framesSinceLastSpark++;
     _framesUntilNewSpark--;
