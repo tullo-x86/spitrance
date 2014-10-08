@@ -46,6 +46,7 @@ struct Options
     uint32_t speed;
     uint8_t wordLength;
     uint8_t lumi;
+    uint16_t fps;
 };
 
 static void print_usage(const char *prog)
@@ -55,7 +56,8 @@ static void print_usage(const char *prog)
             "  -s --speed    max speed (Hz)\n"
             "  -d --delay    delay (usec)\n"
             "  -b --bpw      bits per word \n"
-            "  -l --lumi     luminance\n");
+            "  -l --lumi     luminance\n"
+            "  -f --fps      frames per second (default 30) \n");
         exit(1);
 }
 
@@ -67,11 +69,12 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
                         { "speed",   1, nullptr, 's' },
                         { "delay",   1, nullptr, 'd' },
                         { "lumi",    1, nullptr, 'l' },
+                        { "fps",     1, nullptr, 'f' },
                         { NULL, 0, 0, 0 },
                 };
                 int c;
 
-                c = getopt_long(argc, argv, "D:s:d:l:", lopts, NULL);
+                c = getopt_long(argc, argv, "D:s:d:l:f:", lopts, NULL);
 
                 if (c == -1)
                         break;
@@ -88,6 +91,9 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
                         break;
                 case 'l':
                         options->lumi = (uint8_t)atoi(optarg);
+                        break;
+                case 'f':
+                        options->fps = (uint8_t)atoi(optarg);
                         break;
                 default:
                         print_usage(argv[0]);
@@ -110,6 +116,7 @@ int main(int argc, char *argv[])
     options.delay = 500;
     options.speed = 10000000;
     options.lumi = 1;
+    options.fps = 30;
     
     parse_opts(argc, argv, &options);
     
@@ -127,6 +134,6 @@ int main(int argc, char *argv[])
         strip.FillGBR(sparks.GetRGBData(), options.lumi);
         strip.Output();
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000 / options.fps));
     }
 }

@@ -44,8 +44,7 @@ _framesUntilNewSpark(0)
     for(int i=0; i < _length; i++)
         _hsvBuffer[i] = CHSV(_backgroundHue, 255, 255);
     
-    _sparks.push_front(Spark(HUE_MAX_RAINBOW / 3));
-    _sparks[0].Position = length - 1;
+    _sparks.push_front(Spark(HUE_MAX_RAINBOW / 3, length - 1));
     
     _framesUntilNewSpark = FRAMES_BETWEEN_SPARKS;
 }
@@ -55,7 +54,7 @@ void SparksPattern::Logic()
     int lastSparkHead = -1;
     
     // Iterate forward from pixel 0 to pixel n
-    for(std::deque<Spark>::iterator it = _sparks.begin(); it != _sparks.end(); it++)
+    for(auto it = _sparks.begin(); it != _sparks.end(); it++)
     {
         // - Find the position of this spark
         int startIdx = it->Position;
@@ -100,10 +99,15 @@ void SparksPattern::Logic()
     // Can only destroy a spark if:
     //   - There are at least two sparks
     //  && Spark before it has reached the end
-    if (_sparks.size() > 1
-        && _sparks.at(_sparks.size() - 2).Position >= (_length - 1))
-    {
-        _sparks.pop_back();
+    if (_sparks.size() > 1)
+    {        
+        auto it = _sparks.rbegin();
+        it++;
+        
+        if (it->Position >= (_length - 1))
+        {
+            _sparks.pop_back();
+        }
     }
     
     if (--_framesUntilNewSpark == 0)

@@ -28,7 +28,7 @@
 #define SPARKSPATTERN_H
 
 #include "../../ledstrip.h"
-#include <queue>
+#include <list>
 
 struct Spark;
 
@@ -47,7 +47,7 @@ private:
     int _length;
     int _framesUntilNewSpark;
     
-    std::deque<Spark> _sparks;
+    std::list<Spark> _sparks;
     
     CRGB *_rgbBuffer;
     CHSV *_hsvBuffer;
@@ -57,7 +57,7 @@ private:
 
 struct Spark
 {
-    Spark(uint8_t h) : Hue(h), Position(0) { }
+    Spark(uint8_t h, int position = 0) : Hue(h), Position(position) { }
     uint8_t Hue;
     unsigned int Position;
 };
