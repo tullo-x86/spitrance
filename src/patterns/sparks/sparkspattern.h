@@ -35,7 +35,7 @@ struct Spark;
 class SparksPattern
 {
 public:
-    SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength);
+    SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin);
     ~SparksPattern();
     
     void Logic();
@@ -46,8 +46,11 @@ public:
 private:
     int _length;
     int _framesUntilNewSpark;
+    
     const int _framesBetweenSparks;
     const int _sparkleTrailLength;
+    const int _valFalloffDistance;
+    const uint8_t _valMin;
     
     std::list<Spark> _sparks;
     
@@ -55,6 +58,8 @@ private:
     CHSV *_hsvBuffer;
     
     uint8_t _backgroundHue;
+    
+    uint8_t PixelVal(int leadingSparkPosition, int pixelPosition);
 };
 
 struct Spark

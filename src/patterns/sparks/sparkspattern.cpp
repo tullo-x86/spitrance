@@ -28,13 +28,16 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "../../FastLED/hsv2rgb.h"
 
-SparksPattern::SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength)
+SparksPattern::SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin)
 : _length(length),
 _framesUntilNewSpark(framesBetweenSparks),
 _framesBetweenSparks(framesBetweenSparks),
-_sparkleTrailLength(sparkleTrailLength)
+_sparkleTrailLength(sparkleTrailLength),
+_valFalloffDistance(valFalloffDistance),
+_valMin(valMin)
 {
     _rgbBuffer = new CRGB[length];
     _hsvBuffer = new CHSV[length];
@@ -73,6 +76,22 @@ void SparksPattern::Logic()
     }
 }
 
+inline int interpolate(int a, int b, int t, int range_t) {
+    return ((a*t) / range_t)
+           +
+           (b*(range_t - t) / range_t);
+}
+
+uint8_t SparksPattern::PixelVal(int leadingSparkPosition, int pixelPosition)
+{
+    int distance = leadingSparkPosition - pixelPosition;
+    if (distance > _valFalloffDistance)
+        return _valMin;
+    
+    return interpolate(_valMin, 255, distance, _valFalloffDistance);
+}
+
+
 void SparksPattern::Render()
 {
     int lastSparkHead = -1;
@@ -93,27 +112,31 @@ void SparksPattern::Render()
         // - Iterate backwards until the head of the last spark
         for (int pixelIdx = startIdx; pixelIdx > lastSparkHead; pixelIdx--)
         {
-            //   - Set pixel hue to curent spark's hue
-            _hsvBuffer[pixelIdx].hue = spark.Hue;
+            CHSV &pixel = _hsvBuffer[pixelIdx];
             
-            //   - Set pixel saturation to:
+            //   - Set pixel hue to curent spark's hue
+            pixel.hue = spark.Hue;
+            
+            //   - Set pixel saturation:
             //     - (HEAD) 0
             //     - (BODY) random
             //     - (TAIL) 255
             if (pixelIdx == spark.Position)
             {
-                _hsvBuffer[pixelIdx].sat = 0;
+                pixel.sat = 0;
             }
             else if (spark.Position - pixelIdx <= _sparkleTrailLength)
             {
                 // Saturation = 100% - RandomElement({ 0xff, 0x7f, 0x3f, 0x1f, 0x0f })
                 //    leaving possible sat values of { 0x00, 0x70, 0xc0, 0xe0, 0xf0 }
-                _hsvBuffer[pixelIdx].sat = 0xff - (0xff >> (rand() % 5));
+                pixel.sat = 0xff - (0xff >> (rand() % 5));
             }
             else
             {
-                _hsvBuffer[pixelIdx].sat = 255;
+                pixel.sat = 255;
             }
+            
+            pixel.val = PixelVal(spark.Position, pixelIdx);
         }
         
         lastSparkHead = spark.Position;

@@ -115,8 +115,8 @@ int main(int argc, char *argv[])
     options.device = "/dev/spidev1.0";
     options.delay = 500;
     options.speed = 10000000;
-    options.lumi = 1;
-    options.fps = 30;
+    options.lumi = 6;
+    options.fps = 60;
     
     parse_opts(argc, argv, &options);
     
@@ -125,14 +125,14 @@ int main(int argc, char *argv[])
     SpiDevice spi(options.device, options.delay, options.speed, 8);
     LedStrip strip(&spi, NUM_PIXELS);
     
-    SparksPattern sparks(NUM_PIXELS, 30, 4);
+    SparksPattern sparks(NUM_PIXELS, 30, 4, 8, 64);
     
     int animate = 0;
     
     while(1) {
         if (--animate <= 0) {
             sparks.Logic();
-            animate = 2;
+            animate = 3;
         }
         sparks.Render();
         
