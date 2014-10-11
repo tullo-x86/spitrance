@@ -68,13 +68,12 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
                         { "device",  1, nullptr, 'D' },
                         { "speed",   1, nullptr, 's' },
                         { "delay",   1, nullptr, 'd' },
-                        { "lumi",    1, nullptr, 'l' },
                         { "fps",     1, nullptr, 'f' },
                         { NULL, 0, 0, 0 },
                 };
                 int c;
 
-                c = getopt_long(argc, argv, "D:s:d:l:f:", lopts, NULL);
+                c = getopt_long(argc, argv, "D:s:d:f:", lopts, NULL);
 
                 if (c == -1)
                         break;
@@ -88,9 +87,6 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
                         break;
                 case 'd':
                         options->delay = atoi(optarg);
-                        break;
-                case 'l':
-                        options->lumi = (uint8_t)atoi(optarg);
                         break;
                 case 'f':
                         options->fps = (uint8_t)atoi(optarg);
@@ -115,12 +111,9 @@ int main(int argc, char *argv[])
     options.device = "/dev/spidev1.0";
     options.delay = 500;
     options.speed = 10000000;
-    options.lumi = 6;
     options.fps = 80;
     
     parse_opts(argc, argv, &options);
-    
-    
     
     SpiDevice spi(options.device, options.delay, options.speed, 8);
     LedStrip strip(&spi, NUM_PIXELS);
