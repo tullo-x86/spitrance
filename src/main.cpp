@@ -101,9 +101,6 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
 
 #define NUM_PIXELS 76
 
-CHSV hsvPixels[NUM_PIXELS];
-CRGB rgbPixels[NUM_PIXELS];
-
 int main(int argc, char *argv[])
 {
     struct Options options;
@@ -118,26 +115,24 @@ int main(int argc, char *argv[])
     SpiDevice spi(options.device, options.delay, options.speed, 8);
     LedStrip strip(&spi, NUM_PIXELS);
     
-    SparksPattern sparks(NUM_PIXELS, 32, 3, 12, 28, 96);
-    sparks.Render();
-    strip.FillGBR(sparks.GetRGBData());
-        
-    strip.Output();
+    SparksPattern lPattern(NUM_PIXELS / 2, 3, 10, 28, 96, 24);
+    SparksPattern rPattern(NUM_PIXELS / 2, 3, 8, 28, 96, 18);
     
     int animate = 0;
     
     while(1) {
         if (--animate <= 0) {
-            sparks.Logic();
-            animate = 4;
+            lPattern.Logic();
+            rPattern.Logic();
+            animate = 3;
         }
-        sparks.Render();
+        lPattern.Render();
+        rPattern.Render();
         
         //strip.FillGBR(sparks.GetRGBData());
-        strip.AssignPixelsForwardGBR(sparks.GetRGBData(), 76, 0);
-        strip.Output();
-        std::this_thread::sleep_for(std::chrono::microseconds(1));
-        strip.AssignPixelsForwardGBR(sparks.GetRGBData(), 76, 0);
+        strip.AssignPixelsForwardGBR(lPattern.GetRGBData(), 38, 0);
+        
+        strip.AssignPixelsReverseGBR(rPattern.GetRGBData(), 38, 38);
         strip.Output();
         
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / options.fps));

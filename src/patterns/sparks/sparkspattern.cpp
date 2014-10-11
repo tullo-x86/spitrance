@@ -31,9 +31,9 @@
 #include <stdio.h>
 #include "../../FastLED/hsv2rgb.h"
 
-SparksPattern::SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin, uint8_t valMax)
+SparksPattern::SparksPattern(int length, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin, uint8_t valMax, int framesBetweenSparks, int startOffset)
 : _length(length),
-_framesUntilNewSpark(1),
+_framesUntilNewSpark(startOffset),
 _framesBetweenSparks(framesBetweenSparks),
 _sparkleTrailLength(sparkleTrailLength),
 _valFalloffDistance(valFalloffDistance),

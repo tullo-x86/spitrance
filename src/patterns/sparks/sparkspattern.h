@@ -35,7 +35,7 @@ struct Spark;
 class SparksPattern
 {
 public:
-    SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin, uint8_t valMax);
+    SparksPattern(int length, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin, uint8_t valMax, int framesBetweenSparks, int startOffset = 1);
     ~SparksPattern();
     
     void Logic();
