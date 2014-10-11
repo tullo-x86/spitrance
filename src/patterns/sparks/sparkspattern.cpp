@@ -31,20 +31,21 @@
 #include <stdio.h>
 #include "../../FastLED/hsv2rgb.h"
 
-SparksPattern::SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin)
+SparksPattern::SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin, uint8_t valMax)
 : _length(length),
-_framesUntilNewSpark(framesBetweenSparks),
+_framesUntilNewSpark(1),
 _framesBetweenSparks(framesBetweenSparks),
 _sparkleTrailLength(sparkleTrailLength),
 _valFalloffDistance(valFalloffDistance),
-_valMin(valMin)
+_valMin(valMin),
+_valMax(valMax)
 {
     _rgbBuffer = new CRGB[length];
     _hsvBuffer = new CHSV[length];
     
     // Clear "framebuffer"
     for(int i=0; i < _length; i++)
-        _hsvBuffer[i] = CHSV(_backgroundHue, 255, 255);
+        _hsvBuffer[i] = CHSV(_backgroundHue, 255, valMax);
     
     _sparks.push_front(Spark(0, length - 1));
 }
@@ -88,7 +89,7 @@ uint8_t SparksPattern::PixelVal(int leadingSparkPosition, int pixelPosition)
     if (distance > _valFalloffDistance)
         return _valMin;
     
-    return interpolate(_valMin, 255, distance, _valFalloffDistance);
+    return interpolate(_valMin, _valMax, distance, _valFalloffDistance);
 }
 
 
@@ -130,6 +131,7 @@ void SparksPattern::Render()
                 // Saturation = 100% - RandomElement({ 0xff, 0x7f, 0x3f, 0x1f, 0x0f })
                 //    leaving possible sat values of { 0x00, 0x70, 0xc0, 0xe0, 0xf0 }
                 pixel.sat = 0xff - (0xff >> (rand() % 5));
+                //pixel.sat = interpolate(255, 0, spark.Position - pixelIdx, _sparkleTrailLength);
             }
             else
             {

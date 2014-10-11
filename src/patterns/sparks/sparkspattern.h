@@ -35,7 +35,7 @@ struct Spark;
 class SparksPattern
 {
 public:
-    SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin);
+    SparksPattern(int length, int framesBetweenSparks, int sparkleTrailLength, int valFalloffDistance, uint8_t valMin, uint8_t valMax);
     ~SparksPattern();
     
     void Logic();
@@ -51,6 +51,7 @@ private:
     const int _sparkleTrailLength;
     const int _valFalloffDistance;
     const uint8_t _valMin;
+    const uint8_t _valMax;
     
     std::list<Spark> _sparks;
     
