@@ -115,8 +115,8 @@ int main(int argc, char *argv[])
     SpiDevice spi(options.device, options.delay, options.speed, 8);
     LedStrip strip(&spi, NUM_PIXELS);
     
-    SparksPattern lPattern(NUM_PIXELS / 2, 3, 10, 28, 96, 24);
-    SparksPattern rPattern(NUM_PIXELS / 2, 3, 8, 28, 96, 18);
+    SparksPattern lPattern(NUM_PIXELS / 2, 3, 14, 28, 128, 24);
+    SparksPattern rPattern(NUM_PIXELS / 2, 3, 8, 28, 128, 18);
     
     int animate = 0;
     
