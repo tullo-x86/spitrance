@@ -17,4 +17,4 @@ set(SOURCE
 add_subdirectory("${PROJECT_SOURCE_DIR}/FastLED")
 add_subdirectory("${PROJECT_SOURCE_DIR}/patterns")
 
-add_executable(test-leds ${SOURCE} ${HEADERS})
+add_executable(spitrance ${SOURCE} ${HEADERS})
