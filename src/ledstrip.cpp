@@ -43,24 +43,43 @@ LedStrip::~LedStrip()
 
 void LedStrip::FillGBR(const CRGB pixels[], uint8_t brightness)
 {
-    // Header
-    memset(_buffer, 0x00, 4);
-    
-    // Payload
-    for (int i=0; i < _length; i++)
-    {
-        // Assume the user is ignorant of the strip protocol and clamp brightness to 0-31
-        _buffer[4*i + 4] = 0xe0 | (brightness < 32 ? brightness : 31);
-        _buffer[4*i + 5] = pixels[i].g;
-        _buffer[4*i + 6] = pixels[i].b;
-        _buffer[4*i + 7] = pixels[i].r;
-    }
-    
-    // Footer
-    memset(_buffer + ((1 + _length) * 4), 0xff, 4);
+    AssignPixelsForwardGBR(pixels, _length, 0, brightness);
 }
+
+void LedStrip::AssignPixelsForwardGBR(const CRGB pixels[], int length, int offset, uint8_t brightness)
+{
+    for (int i=0; i < length; i++)
+    {
+        int bufIdx = offset + i;
+        
+        _buffer[4*bufIdx + 4] = 0xe0 | brightness;
+        _buffer[4*bufIdx + 5] = pixels[i].g;
+        _buffer[4*bufIdx + 6] = pixels[i].b;
+        _buffer[4*bufIdx + 7] = pixels[i].r;
+    }
+}
+
+void LedStrip::AssignPixelsReverseGBR(const CRGB pixels[], int length, int offset, uint8_t brightness)
+{
+    for (int i=0; i < length; i++)
+    {
+        int bufIdx = offset + length - i - 1;
+        
+        _buffer[4*bufIdx + 4] = 0xe0 | brightness;
+        _buffer[4*bufIdx + 5] = pixels[i].g;
+        _buffer[4*bufIdx + 6] = pixels[i].b;
+        _buffer[4*bufIdx + 7] = pixels[i].r;
+    }
+}
+
 
 void LedStrip::Output()
 {
-    _spiDevice->Transfer(_buffer, 8 + (_length * 4));
+    // Header
+    memset(_buffer, 0x00, 4);
+    
+    // Footer
+    memset(_buffer + ((1 + _length) * 4), 0xff, 4);
+    
+    _spiDevice->Transfer(_buffer, 8 + (_length * 4));    
 }

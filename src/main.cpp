@@ -99,7 +99,7 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
 }
 
 
-#define NUM_PIXELS 124
+#define NUM_PIXELS 76
 
 CHSV hsvPixels[NUM_PIXELS];
 CRGB rgbPixels[NUM_PIXELS];
@@ -119,6 +119,10 @@ int main(int argc, char *argv[])
     LedStrip strip(&spi, NUM_PIXELS);
     
     SparksPattern sparks(NUM_PIXELS, 32, 3, 12, 28, 96);
+    sparks.Render();
+    strip.FillGBR(sparks.GetRGBData());
+        
+    strip.Output();
     
     int animate = 0;
     
@@ -129,7 +133,11 @@ int main(int argc, char *argv[])
         }
         sparks.Render();
         
-        strip.FillGBR(sparks.GetRGBData(), 31);
+        //strip.FillGBR(sparks.GetRGBData());
+        strip.AssignPixelsForwardGBR(sparks.GetRGBData(), 76, 0);
+        strip.Output();
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
+        strip.AssignPixelsForwardGBR(sparks.GetRGBData(), 76, 0);
         strip.Output();
         
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / options.fps));

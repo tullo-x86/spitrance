@@ -37,6 +37,9 @@ public:
     ~LedStrip();
     
     void FillGBR(const CRGB pixels[], uint8_t brightness = 31);
+    void AssignPixelsForwardGBR(const CRGB pixels[], int length, int offset = 0, uint8_t brightness = 31);
+    void AssignPixelsReverseGBR(const CRGB pixels[], int length, int offset = 0, uint8_t brightness = 31);
+    
     void Output();
     
     inline int GetLength() { return _length; }
