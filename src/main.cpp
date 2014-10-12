@@ -45,7 +45,7 @@ struct Options
     uint16_t delay;
     uint32_t speed;
     uint8_t wordLength;
-    uint8_t lumi;
+    uint16_t ratio;
     uint16_t fps;
 };
 
@@ -56,8 +56,8 @@ static void print_usage(const char *prog)
             "  -s --speed    max speed (Hz)\n"
             "  -d --delay    delay (usec)\n"
             "  -b --bpw      bits per word \n"
-            "  -l --lumi     luminance\n"
-            "  -f --fps      frames per second (default 30) \n");
+            "  -f --fps      frames per second (default 28) \n"
+            "  -r --ratio    sparkle animation frames between updates (default 3)\n");
         exit(1);
 }
 
@@ -69,11 +69,12 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
                         { "speed",   1, nullptr, 's' },
                         { "delay",   1, nullptr, 'd' },
                         { "fps",     1, nullptr, 'f' },
+                        { "ratio",   1, nullptr, 'r' },
                         { NULL, 0, 0, 0 },
                 };
                 int c;
 
-                c = getopt_long(argc, argv, "D:s:d:f:", lopts, NULL);
+                c = getopt_long(argc, argv, "D:s:d:f:r:", lopts, NULL);
 
                 if (c == -1)
                         break;
@@ -90,6 +91,9 @@ static void parse_opts(int argc, char *argv[], struct Options *options)
                         break;
                 case 'f':
                         options->fps = (uint8_t)atoi(optarg);
+                        break;
+                case 'r':
+                        options->ratio = (uint8_t)atoi(optarg);
                         break;
                 default:
                         print_usage(argv[0]);
@@ -108,7 +112,8 @@ int main(int argc, char *argv[])
     options.device = "/dev/spidev1.0";
     options.delay = 500;
     options.speed = 10000000;
-    options.fps = 80;
+    options.fps = 28;
+    options.ratio = 3;
     
     parse_opts(argc, argv, &options);
     
@@ -124,7 +129,7 @@ int main(int argc, char *argv[])
         if (--animate <= 0) {
             lPattern.Logic();
             rPattern.Logic();
-            animate = 3;
+            animate = options.ratio;
         }
         lPattern.Render();
         rPattern.Render();
@@ -135,6 +140,6 @@ int main(int argc, char *argv[])
         strip.AssignPixelsReverseGBR(rPattern.GetRGBData(), 38, 38);
         strip.Output();
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000 / options.fps));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000 / options.fps / options.ratio));
     }
 }
