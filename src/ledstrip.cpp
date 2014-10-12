@@ -32,7 +32,7 @@ LedStrip::LedStrip(SpiDevice *spiDevice, int length)
 : _spiDevice(spiDevice),
 _length(length)
 {
-    _buffer = new uint8_t[_length * 4];
+    _buffer = new uint8_t[8 + (_length * 4)];
     _spiDevice->Open();
 }
 
